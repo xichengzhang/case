@@ -24,7 +24,7 @@ public class SearchController {
 
     @RequestMapping("/index")
     public String toIndex(){
-
+        System.out.println();
         return "index";
     }
 
