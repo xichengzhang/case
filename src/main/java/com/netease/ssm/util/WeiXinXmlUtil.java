@@ -155,9 +155,18 @@ public class WeiXinXmlUtil {
 
         System.out.println(userList);*/
 
-        System.out.println(formatDateToString(new Date(1494575725000l)));
+        /*System.out.println(formatDateToString(new Date(1494575725000l)));*/
+
+        User user = new User();
+        System.out.println(hash(user));
+        System.out.println(user.hashCode());
 
 
+    }
+
+    static final int hash(Object key) {
+        int h;
+        return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
     }
 
     /**
