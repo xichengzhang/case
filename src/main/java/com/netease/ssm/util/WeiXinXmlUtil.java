@@ -30,6 +30,7 @@ public class WeiXinXmlUtil {
 
     private static final Logger logger = Logger.getLogger(WeiXinXmlUtil.class);
 
+    private static String test = "123";
     public static String parserXml(String uri){
         try {
 
@@ -157,10 +158,12 @@ public class WeiXinXmlUtil {
 
         /*System.out.println(formatDateToString(new Date(1494575725000l)));*/
 
-        User user = new User();
+        /*User user = new User();
         System.out.println(hash(user));
         System.out.println(user.hashCode());
-
+*/
+        test = test + "456";
+        System.out.println(test);
 
     }
 

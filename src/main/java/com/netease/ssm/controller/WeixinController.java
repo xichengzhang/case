@@ -44,13 +44,20 @@ public class WeixinController {
 
     public static void main(String[] args) throws Exception {
 
-        String zzzz = "{\"msg\":\"success\",\"result\":1}";
+        /*String zzzz = "{\"msg\":\"success\",\"result\":1}";
         net.sf.json.JSONObject jsonObject = net.sf.json.JSONObject.fromObject(zzzz);
         int result = jsonObject.getInt("result");
         System.out.println(result);
 
         String total = sentGetForWeixin("http://mp.weixin.qq.com/s?src=3&timestamp=1491982337&ver=1&signature=LMOIsvFDXbN7k2QgD3vC1W2E*BkYf5gewwEIu5c5Y-JjL0MhCF6z35u1aEwih1PGoOfjtYOdl798JBXYNMnqPHAjNVcyVEFhN32yC5KvfGOGsyZbGmgQKrCFUGJkZRT-WLD-LvwpYLfa6i7*76WpLAtPbLBBn32CDhJwxWyvtZ8=");
-        System.out.println(total.substring(total.indexOf("?vid=")+5,total.indexOf("&amp;width=")));
+        System.out.println(total.substring(total.indexOf("?vid=")+5,total.indexOf("&amp;width=")));*/
+
+        String aaa = "PLOC5u3ZE5KnVJUANxxuL8nDSAvdlyedNw\" class=\"yt-pl-th";
+        System.out.println(aaa.substring(0,34));
+
+        String bb = "FL-3jIAlnQmbbVMV6gR7K8aQ\\\" class=\\";
+        System.out.println(bb.substring(0,bb.indexOf("\\\"")));
+
     }
 
     public static String sentGetForWeixin(String url) throws Exception {
