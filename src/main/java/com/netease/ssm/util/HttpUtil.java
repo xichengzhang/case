@@ -24,6 +24,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import com.alibaba.fastjson.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -41,6 +42,7 @@ import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
@@ -581,5 +583,63 @@ public class HttpUtil {
 			}
 			return set;
 		}
-		
+
+	/**
+	 * post body数据到指定地址，并获取返回结果.
+	 * @throws IOException
+	 * @throws NoSuchAlgorithmException
+	 * @throws KeyManagementException
+	 */
+	public static String postBody(String url, Map<String, Object> param, String encoding, int readTimeout,
+								  boolean isSSL) throws Exception {
+		DefaultHttpClient httpClient = new DefaultHttpClient();
+		if (isSSL) {
+			SSLContext sslContext = SSLContext.getInstance("TLS");
+			sslContext.init(null, new TrustManager[] { new X509TrustManager() {
+				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+					return null;
+				}
+
+				public void checkClientTrusted(java.security.cert.X509Certificate[] arg0, String arg1)
+						throws CertificateException {
+				}
+
+				public void checkServerTrusted(java.security.cert.X509Certificate[] arg0, String arg1)
+						throws CertificateException {
+				}
+			} }, new SecureRandom());
+			SSLSocketFactory sf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+			Scheme httpScheme = new Scheme("http", 80, PlainSocketFactory.getSocketFactory());
+			Scheme httpsScheme = new Scheme("https", 443, sf);
+			httpClient = new DefaultHttpClient();
+			httpClient.getConnectionManager().getSchemeRegistry().register(httpScheme);
+			httpClient.getConnectionManager().getSchemeRegistry().register(httpsScheme);
+		}
+		// 重试
+		httpClient.setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(3, false));
+		//超时
+		httpClient.getParams().setIntParameter(HttpConnectionParams.CONNECTION_TIMEOUT, 10000);
+		httpClient.getParams().setIntParameter(HttpConnectionParams.SO_TIMEOUT, readTimeout);
+		HttpPost httppost = new HttpPost(url);
+		try {
+			List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+			for (String key : param.keySet()) {
+				nvps.add(new BasicNameValuePair(key, String.valueOf(param.get(key))));
+			}
+			httppost.setHeader("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9.1.2)");
+			httppost.addHeader("Accept", "application/json, text/javascript, */*; q=0.01");
+			httppost.setHeader("Referer", url);
+			httppost.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, false);
+			httppost.setEntity(new StringEntity(JSON.toJSONString(param), encoding));
+
+			HttpResponse response = httpClient.execute(httppost);
+			return EntityUtils.toString(response.getEntity(), encoding);
+		} catch (IOException e) {
+			throw e;
+		} finally {
+			httpClient.getConnectionManager().shutdown();
+		}
+	}
+
+
 }
