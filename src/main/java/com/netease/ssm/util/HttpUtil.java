@@ -28,6 +28,7 @@ import com.alibaba.fastjson.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -473,17 +474,12 @@ public class HttpUtil {
 	}
 	
 	
-	 public static void main(String[] args)  {
-		 try {
-			 HttpUtil aa = new HttpUtil();
-			//System.out.println(aa.getRandomIp());
-			String bb = "/home/app/workspace/videolib2_release/release-current/dist/webhtml/image/snapshot/2016/12/E/H/VC7DBBMEH";
-			System.out.println(bb.substring(bb.indexOf("/image")));
-			//System.out.println(aa.sentGetForToutiao("http://m.toutiao.com/pgc/ma/?media_id=6102033587&page_type=1&max_behot_time=0&count=10&version=2&platform=pc&as=A18528A4AA5694A&cp=584A5669342AFE1"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	    }
+	 public static void main(String[] args) throws Exception {
+		  Map<String,Object> params = new HashMap<String,Object>();
+		 //params.put("qq",12);
+		 String a = postBody("https://www.google.com.hk", params, "utf-8", 5000, false);
+		 System.out.println(a);
+	 }
 
 	    public static String sendGet (String url,String param,String charsetName) {
 	        String result="";

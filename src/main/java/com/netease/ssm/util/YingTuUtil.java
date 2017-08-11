@@ -26,8 +26,8 @@ public class YingTuUtil {
         params.put("userId", "875191629797145600");
         //params.put("refreshType",2);
         Map<String,Object> dataMap=new HashMap<String,Object>();
-        dataMap.put("categoryId","4");
-        dataMap.put("pageId",1);
+        dataMap.put("categoryId","18");
+        dataMap.put("pageId",3);
         dataMap.put("refreshType",2);
         dataMap.put("timestamp",new Date().getTime()/1000);
 
@@ -89,7 +89,12 @@ public class YingTuUtil {
 
 
                 JSONObject json2 = JSONObject.fromObject(strval1);
+                if(json2.get("suggestTopicList") == null || json2.get("suggestTopicList").equals("null")){
+                    System.out.println(json2.get("suggestTopicList"));
+                    continue;
+                }
                 JSONArray json3=json2.getJSONArray("suggestTopicList");
+
                 for(int i=0;i<json3.size();i++){
 
                     JSONObject json4=JSONObject.fromObject(json3.get(i));
