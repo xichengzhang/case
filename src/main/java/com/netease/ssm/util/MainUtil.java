@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.netease.ssm.pojo.TestEnum;
 import com.netease.ssm.pojo.User;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,41 +20,20 @@ public class MainUtil {
 
     private static final String BIG_IMG_HZ_URL = "http://dm.netease.com/cv-news/video_cover?docid={vid}&urls={url}";
     private static final String IR_ENCODING = "UTF-8";
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     public static void main(String[] args) {
+        System.out.println(lastMonth(2));
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, -10);
+        String starttime = sdf.format(c.getTime());
+        System.out.println(starttime);
 
-        String imgPathToHz = "http://dingyue.nosdn.127.net/i9pgskKGiSX=acef3rK4zLYkwZbqNFW2Xiwq6cEDp10Ur1498307730356" + ".jpg";
-        String bigImgUrl = BIG_IMG_HZ_URL.replace("{vid}","CNNO5BUU05218K77");
-        bigImgUrl = bigImgUrl.replace("{url}",imgPathToHz);
-        System.out.println(String.format("开始发送封面图给杭研 VID:%s,imgPathToHz:%s,bigImgUrl:%s","CNNO5BUU05218K77",imgPathToHz,bigImgUrl));
-        //String bigImgResult = HttpUtil.httpget(bigImgUrl, IR_ENCODING);
-        String bigImgResult = "{\"cover\": {\"fm\": 2126.02,\"height\": 266,\"url\": \"http://vimg1.ws.126.net/image/snapshot/2017/7/J/1/VCPO3U7J1.jpg\",\"width\": 472},\"success\": true}";
-        System.out.println(String.format("结束发送封面图给杭研 VID:%s,imgPathToHz:%s,bigImgUrl:%s,result:%s","CNNO5BUU05218K77",imgPathToHz,bigImgUrl,bigImgResult));
+        String x = "qwewrrr";
+        System.out.println(x.replace("rrr","vvv"));
+        System.out.println(x.replace("eee","vvv"));
 
-        JSONObject bigImgResultObject = JSON.parseObject(bigImgResult);
-        boolean successObject = bigImgResultObject.getBoolean("success");
-        String fm = "";
-        if(successObject){
-            JSONObject coverObject = bigImgResultObject.getJSONObject("cover");
-            fm = coverObject.getString("fm");
-        }
-        System.out.println("fm:"+fm);
-
-        Map mm = new HashMap();
-        mm.put("article", "11");
-        mm.put("operator","cms-video");
-        System.out.println(mm.toString());
-
-        User user = new User();
-        user.setUsername("123");
-        user.setId(1);
-        System.out.println(JSON.toJSONString(user));
-
-
-        String json = "123\t\t3333";
-        System.out.println(json);
-        json = replaceTabToBlank(json);
-        System.out.println(json);
-
+        String vvv = "http://enc.bn.netease.com/snapshot/videolib2/2017/8/3/A/ECRGJLV3A_3.jpg";
+        System.out.println(vvv.substring(0, vvv.indexOf("_") + 1));
 
     }
 
@@ -73,6 +54,35 @@ public class MainUtil {
             dest = m.replaceAll(" ");
         }
         return dest;
+    }
+
+    public static String lastMonth(int allMonth) {
+        Date date = new Date();
+        int year=Integer.parseInt(new SimpleDateFormat("yyyy").format(date));
+        int month=Integer.parseInt(new SimpleDateFormat("MM").format(date))-allMonth;
+        int day=Integer.parseInt(new SimpleDateFormat("dd").format(date));
+        if(month <= 0){
+            int yearFlag = (month*(-1))/12 + 1;
+            int monthFlag = (month *(-1))%12;
+            year -= yearFlag;
+            month=monthFlag*(-1) +12;
+        }
+        else if(day>28){
+            if(month==2){
+                if(year%400==0||(year %4==0&&year%100!=0)){
+                    day=29;
+                }else day=28;
+            }else if((month==4||month==6||month==9||month==11)&&day==31){
+                day=30;
+            }
+        }
+        String y = year+"";String m ="";String d ="";
+        if(month<10) m = "0"+month;
+        else m=month+"";
+        if(day<10) d = "0"+day;
+        else d = day+"";
+
+        return y+"-"+m+"-"+d +" 00:00:00";
     }
 
 }

@@ -1,52 +1,51 @@
 package com.netease.ssm.util;
 
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
-import org.apache.log4j.Logger;
 
-import java.util.Iterator;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 /**
- * Created by bjzhangxicheng on 2016/12/8.
+ * Created by bjzhangxicheng on 2017/3/10.
  */
 public class RedisUtil {
 	protected static Logger logger = Logger.getLogger(RedisUtil.class);
 
-	//RedisæœåŠ¡å™¨IP
-	//private static String host = Config.getInstance().get("redis.host");
-	private static String host = "61.135.251.93";
-
-	//Redisçš„ç«¯å£å·
-	//private static int port = Integer.valueOf(Config.getInstance().get("redis.port"));
-	private static int port = 6379;
-
-	//è®¿é—®å¯†ç 
+	//Redis·şÎñÆ÷IP
+	//private static String host = "10.112.157.244";
+	//private static String host = "127.0.0.1";
+	private static String host = "220.181.29.165";
+	
+	//RedisµÄ¶Ë¿ÚºÅ
+	//private static int port = 6379;
+	private static int port = 8888;
+	//·ÃÎÊÃÜÂë
 	private static String AUTH = null;
-	//private static String AUTH = "O8MSXH6OM7JS";
-	//å¯ç”¨è¿æ¥å®ä¾‹çš„æœ€å¤§æ•°ç›®ï¼Œé»˜è®¤å€¼ä¸º8ï¼›
-	//å¦‚æœèµ‹å€¼ä¸º-1ï¼Œåˆ™è¡¨ç¤ºä¸é™åˆ¶ï¼›å¦‚æœpoolå·²ç»åˆ†é…äº†maxActiveä¸ªjediså®ä¾‹ï¼Œåˆ™æ­¤æ—¶poolçš„çŠ¶æ€ä¸ºexhausted(è€—å°½)ã€‚
+
+	//¿ÉÓÃÁ¬½ÓÊµÀıµÄ×î´óÊıÄ¿£¬Ä¬ÈÏÖµÎª8£»
+	//Èç¹û¸³ÖµÎª-1£¬Ôò±íÊ¾²»ÏŞÖÆ£»Èç¹ûpoolÒÑ¾­·ÖÅäÁËmaxActive¸öjedisÊµÀı£¬Ôò´ËÊ±poolµÄ×´Ì¬Îªexhausted(ºÄ¾¡)¡£
 	private static int MAX_ACTIVE = 1024;
 
-	//æ§åˆ¶ä¸€ä¸ªpoolæœ€å¤šæœ‰å¤šå°‘ä¸ªçŠ¶æ€ä¸ºidle(ç©ºé—²çš„)çš„jediså®ä¾‹ï¼Œé»˜è®¤å€¼ä¹Ÿæ˜¯8ã€‚
+	//¿ØÖÆÒ»¸öpool×î¶àÓĞ¶àÉÙ¸ö×´Ì¬Îªidle(¿ÕÏĞµÄ)µÄjedisÊµÀı£¬Ä¬ÈÏÖµÒ²ÊÇ8¡£
 	private static int MAX_IDLE = 200;
 
-	//ç­‰å¾…å¯ç”¨è¿æ¥çš„æœ€å¤§æ—¶é—´ï¼Œå•ä½æ¯«ç§’ï¼Œé»˜è®¤å€¼ä¸º-1ï¼Œè¡¨ç¤ºæ°¸ä¸è¶…æ—¶ã€‚å¦‚æœè¶…è¿‡ç­‰å¾…æ—¶é—´ï¼Œåˆ™ç›´æ¥æŠ›å‡ºJedisConnectionExceptionï¼›
+	//µÈ´ı¿ÉÓÃÁ¬½ÓµÄ×î´óÊ±¼ä£¬µ¥Î»ºÁÃë£¬Ä¬ÈÏÖµÎª-1£¬±íÊ¾ÓÀ²»³¬Ê±¡£Èç¹û³¬¹ıµÈ´ıÊ±¼ä£¬ÔòÖ±½ÓÅ×³öJedisConnectionException£»
 	private static int MAX_WAIT = 10000;
 
 	private static int TIMEOUT = 10000;
 
-	//åœ¨borrowä¸€ä¸ªjediså®ä¾‹æ—¶ï¼Œæ˜¯å¦æå‰è¿›è¡Œvalidateæ“ä½œï¼›å¦‚æœä¸ºtrueï¼Œåˆ™å¾—åˆ°çš„jediså®ä¾‹å‡æ˜¯å¯ç”¨çš„ï¼›
+	//ÔÚborrowÒ»¸öjedisÊµÀıÊ±£¬ÊÇ·ñÌáÇ°½øĞĞvalidate²Ù×÷£»Èç¹ûÎªtrue£¬ÔòµÃµ½µÄjedisÊµÀı¾ùÊÇ¿ÉÓÃµÄ£»
 	private static boolean TEST_ON_BORROW = true;
 
 	private static JedisPool jedisPool = null;
 
 	/**
-	 * å»ºç«‹è¿æ¥æ± 
+	 * ½¨Á¢Á¬½Ó³Ø
 	 *
 	 */
 	private static void createJedisPool() {
@@ -64,7 +63,7 @@ public class RedisUtil {
 	}
 
 	/**
-	 * è·å–Jediså®ä¾‹
+	 * »ñÈ¡JedisÊµÀı
 	 *
 	 * @return
 	 */
@@ -78,7 +77,7 @@ public class RedisUtil {
 	}
 
 	/**
-	 * é‡Šæ”¾jedisèµ„æº
+	 * ÊÍ·Åjedis×ÊÔ´
 	 *
 	 * @param jedis
 	 */
@@ -86,7 +85,6 @@ public class RedisUtil {
 		if (jedis != null) {
 			try {
 				jedisPool.returnResource(jedis);
-
 			} catch (Exception e) {
 				if (jedis.isConnected()) {
 					jedis.quit();
@@ -98,7 +96,7 @@ public class RedisUtil {
 	}
 
 	/**
-	 * å¾€listé‡Œé¢æ”¾æ•°æ®
+	 * ÍùlistÀïÃæ·ÅÊı¾İ
 	 * @param key
 	 * @param value
 	 * @return
@@ -111,66 +109,41 @@ public class RedisUtil {
 			jedis = getJedis();
 			i = jedis.lpush(key,value);
 		} catch (Exception e) {
-
-			//é‡Šæ”¾rediså¯¹è±¡
+			//ÊÍ·Åredis¶ÔÏó
 			jedisPool.returnBrokenResource(jedis);
-			//e.printStackTrace();
 			logger.error(String.format("redis setList error ! key:%s,value:%s",key,value),e);
 		} finally {
-			//è¿”è¿˜åˆ°è¿æ¥æ± 
+			//·µ»¹µ½Á¬½Ó³Ø
 			close(jedis);
 		}
 		return i;
 	}
 
 	/**
-	 * è·å–listä¸­çš„æ‰€æœ‰value
-	 * @param key
-	 * @return
-	 */
-	public static List<String> getListAll (String key){
-		Jedis jedis = null;
-		List<String> list = null;
-		try {
-			jedis = getJedis();
-			list = jedis.lrange(key,0,-1);
-		} catch (Exception e) {
-			//é‡Šæ”¾rediså¯¹è±¡
-			jedisPool.returnBrokenResource(jedis);
-			//e.printStackTrace();
-			logger.error(String.format("redis getListAll error ! key:%s",key),e);
-		} finally {
-			//è¿”è¿˜åˆ°è¿æ¥æ± 
-			close(jedis);
-		}
-		return list;
-	}
-
-	/**
-	 * è®¾ç½®keyå€¼å¤±æ•ˆæ—¶é—´
+	 * ÉèÖÃkeyÖµÊ§Ğ§Ê±¼ä
 	 * @param key
 	 * @param second
 	 * @return
 	 */
-	public static long expireListTime (String key,int second){
+	public static long expireKeyTime (String key,int second){
 		Jedis jedis = null;
 		long i = 0;
 		try {
 			jedis = getJedis();
 			i = jedis.expire(key,second);
 		} catch (Exception e) {
-			//é‡Šæ”¾rediså¯¹è±¡
+			//ÊÍ·Åredis¶ÔÏó
 			jedisPool.returnBrokenResource(jedis);
 			logger.error(String.format("redis setList error ! key:%s,second:%s",key,second),e);
 		} finally {
-			//è¿”è¿˜åˆ°è¿æ¥æ± 
+			//·µ»¹µ½Á¬½Ó³Ø
 			close(jedis);
 		}
 		return i;
 	}
 
 	/**
-	 * å¼¹å‡ºlistæœ€åä¸€ä¸ªå…ƒç´ 
+	 * µ¯³ölist×îºóÒ»¸öÔªËØ
 	 * @param key
 	 * @return
 	 */
@@ -181,44 +154,85 @@ public class RedisUtil {
 			jedis = getJedis();
 			value = jedis.rpop(key);
 		} catch (Exception e) {
-
-			//é‡Šæ”¾rediså¯¹è±¡
+			//ÊÍ·Åredis¶ÔÏó
 			jedisPool.returnBrokenResource(jedis);
-			//e.printStackTrace();
 			logger.error(String.format("redis rpopList error ! key:%s",key),e);
 		} finally {
-			//è¿”è¿˜åˆ°è¿æ¥æ± 
+			//·µ»¹µ½Á¬½Ó³Ø
 			close(jedis);
 		}
 		return  value;
 	}
 
 	/**
-	 * è·å–æ•°æ®
+	 * »ñÈ¡Êı¾İ
 	 * @param key
 	 * @return
 	 */
-	public static String get(String key) {
-
+	public static String getValue(String key) {
 		String value = null;
 		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			value = jedis.get(key);
 		} catch (Exception e) {
-			//é‡Šæ”¾rediså¯¹è±¡
+			//ÊÍ·Åredis¶ÔÏó
 			jedisPool.returnBrokenResource(jedis);
-			//e.printStackTrace();
 			logger.error(String.format("redis get key error ! key:%s",key),e);
 		} finally {
-			//è¿”è¿˜åˆ°è¿æ¥æ± 
+			//·µ»¹µ½Á¬½Ó³Ø
 			close(jedis);
 		}
 		return value;
 	}
 
 	/**
-	 * æ ¹æ®åŒ¹é…è·å–å“åº”çš„key
+	 * ´æÊı¾İ
+	 * @param key
+	 * @param value
+	 * @return
+	 */
+	public static long setKey(String key,String value) {
+		Jedis jedis = null;
+		long i = 0;
+		try {
+			jedis = getJedis();
+			value = jedis.set(key, value);
+		} catch (Exception e) {
+			//ÊÍ·Åredis¶ÔÏó
+			jedisPool.returnBrokenResource(jedis);
+			logger.error(String.format("redis get key error ! key:%s",key),e);
+		} finally {
+			//·µ»¹µ½Á¬½Ó³Ø
+			close(jedis);
+		}
+		return i;
+	}
+
+	/**
+	 * »ñÈ¡listÖĞµÄËùÓĞvalue
+	 * @param key
+	 * @return
+	 */
+	public static List<String> getListAll (String key){
+		Jedis jedis = null;
+		List<String> list = null;
+		try {
+			jedis = getJedis();
+			list = jedis.lrange(key,0,-1);
+		} catch (Exception e) {
+			//ÊÍ·Åredis¶ÔÏó
+			jedisPool.returnBrokenResource(jedis);
+			logger.error(String.format("redis getListAll error ! key:%s",key),e);
+		} finally {
+			//·µ»¹µ½Á¬½Ó³Ø
+			close(jedis);
+		}
+		return list;
+	}
+
+	/**
+	 * ¸ù¾İÆ¥Åä»ñÈ¡ÏìÓ¦µÄkey
 	 * @param pattern
 	 * @return
 	 */
@@ -229,32 +243,69 @@ public class RedisUtil {
 			jedis = getJedis();
 			s = jedis.keys(pattern);
 		} catch (Exception e) {
-			//é‡Šæ”¾rediså¯¹è±¡
+			//ÊÍ·Åredis¶ÔÏó
 			jedisPool.returnBrokenResource(jedis);
-			//e.printStackTrace();
 			logger.error(String.format("redis getPatternKeys error ! pattern:%s",pattern),e);
 		} finally {
-			//è¿”è¿˜åˆ°è¿æ¥æ± 
+			//·µ»¹µ½Á¬½Ó³Ø
 			close(jedis);
 		}
 		return s;
 	}
 
-	public static void main(String[] args) {
-		Jedis jedis = getJedis();
-		Set s = getPatternKeys("*list");
-		Iterator it = s.iterator();
-
-
-		while (it.hasNext()) {
-			String key = (String) it.next();
-			List<String> list = getListAll(key);
-			System.out.println(key );
-			for(String xxxx : list){
-				System.out.println(xxxx);
+	public static  boolean checkWhetherCanGetLock(String THREAD_LOCK,Integer expireSeconds){
+		Jedis jedis = null;
+		try{
+			jedis = getJedis();
+			expireSeconds =expireSeconds==null  ? 60*3 : expireSeconds;
+			long result = jedis.setnx(THREAD_LOCK, String.valueOf(new Date().getTime()));
+			if(result==1){  //get the lock
+				return true;
+			}else{
+				String timeStr = jedis.get(THREAD_LOCK);
+				if(StringUtils.isBlank(timeStr)){
+					//synchronized (JobUtil.class) {
+					long r2 = jedis.setnx(THREAD_LOCK, String.valueOf(new Date().getTime()));
+					if(r2==1) {
+						return true;
+					}
+					//}
+					timeStr = jedis.get(THREAD_LOCK);
+				}
+				logger.info(THREAD_LOCK+"  ÖĞ´æµÄtimeStrÊı:"+timeStr);
+				long originTime = Long.parseLong(timeStr);
+				long nowTime = new Date().getTime();
+				if(Math.abs(nowTime-originTime)>expireSeconds*1000){//has already expire
+					String oldTimeStr = jedis.getSet(THREAD_LOCK, String.valueOf(new Date().getTime()));
+					logger.error("oldTimeStr"+oldTimeStr);
+					if(StringUtils.isNotBlank(oldTimeStr)){ //check whether it is expire or not
+						long oldTime = Long.parseLong(oldTimeStr);
+						if(originTime==oldTime){
+							return true;
+						}else{
+							return false;
+						} 
+					}else{//execute the job
+						return true;
+					}
+				}else{
+					return false;
+				}
 			}
+
+
+
+		}catch(Exception e){
+			logger.error("checkWhetherCanGetLock error",e);
+			return true;
+		} finally {
+			//·µ»¹µ½Á¬½Ó³Ø
+			close(jedis);
 		}
-		close(jedis);
+	}
+
+
+	public static void main(String[] args) {
+
 	}
 }
-
