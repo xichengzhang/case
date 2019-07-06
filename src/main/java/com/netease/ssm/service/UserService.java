@@ -1,6 +1,7 @@
 package com.netease.ssm.service;
 
 import com.netease.ssm.pojo.User;
+import com.netease.ssm.pojo.Video;
 
 import java.util.List;
 
@@ -15,5 +16,7 @@ public interface UserService {
      * @throws Exception
      */
     List<User> findUser()throws Exception;
+
+    public Video getOneVideo (String vid)throws Exception;
 
 }

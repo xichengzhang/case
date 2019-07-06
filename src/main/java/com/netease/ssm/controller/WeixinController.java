@@ -2,6 +2,8 @@ package com.netease.ssm.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.netease.ssm.pojo.User;
+import com.netease.ssm.util.JackSonUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.client.ClientProtocolException;
@@ -20,6 +22,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by bjzhangxicheng on 2017/4/12.
@@ -45,21 +50,33 @@ public class WeixinController {
 
     public static void main(String[] args) throws Exception {
 
-        /*String zzzz = "{\"msg\":\"success\",\"result\":1}";
-        net.sf.json.JSONObject jsonObject = net.sf.json.JSONObject.fromObject(zzzz);
-        int result = jsonObject.getInt("result");
-        System.out.println(result);
+        User user = new User();
+        user.setId(123);
+        user.setUsername("zhangxicheng");
+        user.setAddress("haha");
+        user.setBirthday(new Date());
+        user.setAge(1.67);
 
-        String total = sentGetForWeixin("http://mp.weixin.qq.com/s?src=3&timestamp=1491982337&ver=1&signature=LMOIsvFDXbN7k2QgD3vC1W2E*BkYf5gewwEIu5c5Y-JjL0MhCF6z35u1aEwih1PGoOfjtYOdl798JBXYNMnqPHAjNVcyVEFhN32yC5KvfGOGsyZbGmgQKrCFUGJkZRT-WLD-LvwpYLfa6i7*76WpLAtPbLBBn32CDhJwxWyvtZ8=");
-        System.out.println(total.substring(total.indexOf("?vid=")+5,total.indexOf("&amp;width=")));*/
+        Map<String, Object> params = JackSonUtil.objToStrMap(user);
 
-        String aaa = "PLOC5u3ZE5KnVJUANxxuL8nDSAvdlyedNw\" class=\"yt-pl-th";
-        System.out.println(aaa.substring(0,34));
+        System.out.println(JSON.toJSONString(params));
 
-        String bb = "FL-3jIAlnQmbbVMV6gR7K8aQ\\\" class=\\";
-        System.out.println(bb.substring(0,bb.indexOf("\\\"")));
+        Map<String, Object> params1 = JackSonUtil.objectToMap(user);
+
+        System.out.println(JSON.toJSONString(params1));
+
+
+        Map<String, Object> params11 = JSONObject.parseObject(JSON.toJSONString(user),Map.class);
+        System.out.println(JSON.toJSONString(params11));
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("rvideoid", "zxcx");
+        map.put("videoAccountClassify", null);
+        String data = JSON.toJSONString(map);
+        System.out.println(data);
 
     }
+
 
     public static String sentGetForWeixin(String url) throws Exception {
         HttpClientBuilder httpClientBuilder = HttpClientBuilder.create();

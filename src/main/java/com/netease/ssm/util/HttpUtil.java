@@ -28,12 +28,13 @@ import com.alibaba.fastjson.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.apache.commons.collections.map.HashedMap;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -49,6 +50,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
@@ -59,9 +61,9 @@ public class HttpUtil {
 	private static final int REQUEST_COUNT=3;
 	
 	/**
-	  * ¹¦ÄÜ£º¼ì²âµ±Ç°URLÊÇ·ñ¿ÉÁ¬½Ó»òÊÇ·ñÓĞĞ§,
-	  * ÃèÊö£º×î¶àÁ¬½ÓÍøÂç 3 ´Î, Èç¹û 3 ´Î¶¼²»³É¹¦£¬ÊÓÎª¸ÃµØÖ·²»¿ÉÓÃ
-	  * @param  urlStr Ö¸¶¨URLÍøÂçµØÖ·
+	  * åŠŸèƒ½ï¼šæ£€æµ‹å½“å‰URLæ˜¯å¦å¯è¿æ¥æˆ–æ˜¯å¦æœ‰æ•ˆ,
+	  * æè¿°ï¼šæœ€å¤šè¿æ¥ç½‘ç»œ 3 æ¬¡, å¦‚æœ 3 æ¬¡éƒ½ä¸æˆåŠŸï¼Œè§†ä¸ºè¯¥åœ°å€ä¸å¯ç”¨
+	  * @param  urlStr æŒ‡å®šURLç½‘ç»œåœ°å€
 	  * @return URL
 	  */
 	
@@ -78,16 +80,16 @@ public class HttpUtil {
 				 start = System.currentTimeMillis();
 				 HttpURLConnection con = (HttpURLConnection) url.openConnection();
 				int state = con.getResponseCode();
-//				System.out.println("ÇëÇó¶Ï¿ªµÄURLÒ»´ÎĞèÒª£º"+(System.currentTimeMillis()-start)+"ºÁÃë");
+//				System.out.println("è¯·æ±‚æ–­å¼€çš„URLä¸€æ¬¡éœ€è¦ï¼š"+(System.currentTimeMillis()-start)+"æ¯«ç§’");
 				 if (state == 200) {
 					 retu = "ok";
-//					 System.out.println(urlStr+"--¿ÉÓÃ");
+//					 System.out.println(urlStr+"--å¯ç”¨");
 				 }
 				 break;
 			 }catch (Exception ex) {
 				 counts++; 
-//				 System.out.println("ÇëÇó¶Ï¿ªµÄURLÒ»´ÎĞèÒª£º"+(System.currentTimeMillis()-start)+"ºÁÃë");
-//				 System.out.println("Á¬½ÓµÚ "+counts+" ´Î£¬"+urlStr+"--²»¿ÉÓÃ");
+//				 System.out.println("è¯·æ±‚æ–­å¼€çš„URLä¸€æ¬¡éœ€è¦ï¼š"+(System.currentTimeMillis()-start)+"æ¯«ç§’");
+//				 System.out.println("è¿æ¥ç¬¬ "+counts+" æ¬¡ï¼Œ"+urlStr+"--ä¸å¯ç”¨");
 				 continue;
 			 }
 		 }
@@ -155,6 +157,18 @@ public class HttpUtil {
 		return "[]";
 	}
 
+	public static int httpGetStatus(String url){
+		try{
+			HttpClient client = new DefaultHttpClient();
+			HttpGet response = new HttpGet(url);
+			HttpResponse httpResp = client.execute(response);
+			return httpResp.getStatusLine().getStatusCode();
+		}catch (Exception e){
+
+		}
+		return 0;
+	}
+
 	public static String httpget(String url) {
 		try {
 			URL u = new URL(url);
@@ -185,13 +199,13 @@ public class HttpUtil {
 		DefaultHttpClient httpclient = null;
 		try {
 			httpclient = new DefaultHttpClient();
-			/** ÉèÖÃ´úÀíIP **/
+			/** è®¾ç½®ä»£ç†IP **/
 			HttpHost proxy = new HttpHost("113.108.225.182", 31298);
 			httpclient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,proxy);
 
 			HttpGet httpget = new HttpGet(url);
 
-			httpget.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT,1000*30);  //ÉèÖÃÇëÇó³¬Ê±Ê±¼ä
+			httpget.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT,1000*30);  //è®¾ç½®è¯·æ±‚è¶…æ—¶æ—¶é—´
 			httpget.setHeader("Proxy-Authorization","Basic eXVsb3JlOll1bG9yZVByb3h5MjAxMzo=");
 			httpget.setHeader("User-Agent",
 					"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.79 Safari/537.1");
@@ -204,14 +218,14 @@ public class HttpUtil {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			httpclient.getConnectionManager().shutdown();   //¹Ø±ÕÁ¬½Ó
+			httpclient.getConnectionManager().shutdown();   //å…³é—­è¿æ¥
 		}
 		return content;
 	}
 
 
 	/**
-	 * post Êı¾İµ½Ö¸¶¨µØÖ·£¬²¢»ñÈ¡·µ»Ø½á¹û.
+	 * post æ•°æ®åˆ°æŒ‡å®šåœ°å€ï¼Œå¹¶è·å–è¿”å›ç»“æœ.
 	 * @throws IOException 
 	 */
 	public static String postContent(String url, Map<String, Object> param, String encoding) throws Exception {
@@ -219,7 +233,7 @@ public class HttpUtil {
 	}
 
 	/**
-	 * post Êı¾İµ½Ö¸¶¨µØÖ·£¬²¢»ñÈ¡·µ»Ø½á¹û.
+	 * post æ•°æ®åˆ°æŒ‡å®šåœ°å€ï¼Œå¹¶è·å–è¿”å›ç»“æœ.
 	 * @throws IOException 
 	 */
 	public static String postContent(String url, Map<String, Object> param, String encoding, boolean isSSL)
@@ -228,7 +242,7 @@ public class HttpUtil {
 	}
 
 	/**
-	 * post Êı¾İµ½Ö¸¶¨µØÖ·£¬²¢»ñÈ¡·µ»Ø½á¹û.
+	 * post æ•°æ®åˆ°æŒ‡å®šåœ°å€ï¼Œå¹¶è·å–è¿”å›ç»“æœ.
 	 * @throws IOException 
 	 * @throws NoSuchAlgorithmException 
 	 * @throws KeyManagementException 
@@ -258,9 +272,9 @@ public class HttpUtil {
 			httpClient.getConnectionManager().getSchemeRegistry().register(httpScheme);
 			httpClient.getConnectionManager().getSchemeRegistry().register(httpsScheme);
 		}
-		// ÖØÊÔ
+		// é‡è¯•
 		httpClient.setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(3, false));
-		//³¬Ê±
+		//è¶…æ—¶
 		httpClient.getParams().setIntParameter(HttpConnectionParams.CONNECTION_TIMEOUT, 10000);
 		httpClient.getParams().setIntParameter(HttpConnectionParams.SO_TIMEOUT, readTimeout);
 		HttpPost httppost = new HttpPost(url);
@@ -284,13 +298,13 @@ public class HttpUtil {
 
 	public static int exists(String URLName) {
 		try {
-			//ÉèÖÃ´ËÀàÊÇ·ñÓ¦¸Ã×Ô¶¯Ö´ĞĞ HTTP ÖØ¶¨Ïò£¨ÏìÓ¦´úÂëÎª 3xx µÄÇëÇó£©¡£
+			//è®¾ç½®æ­¤ç±»æ˜¯å¦åº”è¯¥è‡ªåŠ¨æ‰§è¡Œ HTTP é‡å®šå‘ï¼ˆå“åº”ä»£ç ä¸º 3xx çš„è¯·æ±‚ï¼‰ã€‚
 			HttpURLConnection.setFollowRedirects(false);
-			//µ½ URL ËùÒıÓÃµÄÔ¶³Ì¶ÔÏóµÄÁ¬½Ó
+			//åˆ° URL æ‰€å¼•ç”¨çš„è¿œç¨‹å¯¹è±¡çš„è¿æ¥
 			HttpURLConnection con = (HttpURLConnection) new URL(URLName).openConnection();
-			/* ÉèÖÃ URL ÇëÇóµÄ·½·¨£¬ GET POST HEAD OPTIONS PUT DELETE TRACE ÒÔÉÏ·½·¨Ö®Ò»ÊÇºÏ·¨µÄ£¬¾ßÌåÈ¡¾öÓÚĞ­ÒéµÄÏŞÖÆ¡£*/
+			/* è®¾ç½® URL è¯·æ±‚çš„æ–¹æ³•ï¼Œ GET POST HEAD OPTIONS PUT DELETE TRACE ä»¥ä¸Šæ–¹æ³•ä¹‹ä¸€æ˜¯åˆæ³•çš„ï¼Œå…·ä½“å–å†³äºåè®®çš„é™åˆ¶ã€‚*/
 			con.setRequestMethod("HEAD");
-			//´Ó HTTP ÏìÓ¦ÏûÏ¢»ñÈ¡×´Ì¬Âë
+			//ä» HTTP å“åº”æ¶ˆæ¯è·å–çŠ¶æ€ç 
 			//return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
 			return (con.getResponseCode());
 		} catch (Exception e) {
@@ -305,29 +319,29 @@ public class HttpUtil {
 		String result = "";
 		try {
 //			HttpHost targetHost = new HttpHost("www.baidu.com");
-			// ´´½¨getÁ¬½Ó
+			// åˆ›å»ºgetè¿æ¥
 			HttpGet httpget = new HttpGet(url);
-			// ÉèÖÃ³¬Ê±Ê±¼ä
+			// è®¾ç½®è¶…æ—¶æ—¶é—´
 			//HttpHost proxy = new HttpHost("218.107.55.138", 31298);
 			RequestConfig requestConfig = RequestConfig.custom()
 					.setSocketTimeout(200000).setConnectTimeout(1000 * 10)
-					.build();// ÉèÖÃÇëÇóºÍ´«Êä³¬Ê±Ê±¼ä
+					.build();// è®¾ç½®è¯·æ±‚å’Œä¼ è¾“è¶…æ—¶æ—¶é—´
 			httpget.setConfig(requestConfig);
 			httpget.setHeader("Accept-Charset",
 					"Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9.1.2");
-			// ·¢ËÍÇëÇó
+			// å‘é€è¯·æ±‚
 			CloseableHttpResponse response = httpclient.execute(httpget);
-/*			System.out.println("URI£º" + httpget.getURI());
-			// »ñÈ¡×´Ì¬Âë
-			System.out.println("×´Ì¬Âë£º"
+/*			System.out.println("URIï¼š" + httpget.getURI());
+			// è·å–çŠ¶æ€ç 
+			System.out.println("çŠ¶æ€ç ï¼š"
 					+ response.getStatusLine().getStatusCode());
-			System.out.println("Í·²¿ĞÅÏ¢£º"
+			System.out.println("å¤´éƒ¨ä¿¡æ¯ï¼š"
 					+ httpget.getFirstHeader("Accept-Charset").getValue());
 */
 			// BufferedReader reader= new BufferedReader(new
 			// InputStreamReader(response.get));
 
-			// »ñÈ¡ËùÓĞµÄÇëÇóÍ·ĞÅÏ¢
+			// è·å–æ‰€æœ‰çš„è¯·æ±‚å¤´ä¿¡æ¯
 			/*Header headers[] = response.getAllHeaders();
 			int ii = 0;
 			while (ii < headers.length) {
@@ -335,7 +349,7 @@ public class HttpUtil {
 						+ headers[ii].getValue());
 				++ii;
 			}*/
-			// ×¥È¡ÍøÒ³ÄÚÈİ
+			// æŠ“å–ç½‘é¡µå†…å®¹
 			HttpEntity entity = response.getEntity();
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					entity.getContent(), "UTF-8"));
@@ -346,7 +360,7 @@ public class HttpUtil {
 
 			br.close();
 
-			// ÖÕÖ¹ÇëÇó
+			// ç»ˆæ­¢è¯·æ±‚
 			httpget.abort();
 		} catch (ClientProtocolException e) {
 			System.out.println("ClientProtocolException ==" + e);
@@ -355,14 +369,34 @@ public class HttpUtil {
 			System.out.println("IOException ==" + e);
 			e.printStackTrace();
 		} finally {
-			// ÖÕÖ¹ÇëÇó
+			// ç»ˆæ­¢è¯·æ±‚
 			httpclient.close();
 		}
 		return result;
 	}
+
+	public static String requestBody(PoolingClientConnectionManager poolManager, String remoteUrl, Map params){
+		/*HttpResponse response = null;
+		try {
+			org.apache.http.client.HttpClient httpClient = new DefaultHttpClient(poolManager);
+			httpClient.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,new DefaultHttpRequestRetryHandler(3,false));
+			HttpPost post = new HttpPost(remoteUrl);
+			StringEntity body = new StringEntity(com.alibaba.fastjson.JSONObject.toJSONString(params),"UTF-8");
+			post.setEntity(body);
+			post.setHeader("Content-Type","application/json");
+			response = httpClient.execute(post);
+			if(response == null){
+				return null;
+			}
+			return EntityUtils.toString(response.getEntity());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}*/
+		return null;
+	}
 	
 	public static String sentGetForToutiao(String url) throws Exception {
-		// ´´½¨HttpClientBuilder  
+		// åˆ›å»ºHttpClientBuilder  
 //		String[] res = getRandomIp();
 //		Random r = new Random();
 //		String ips = res[r.nextInt(res.length)];
@@ -376,16 +410,16 @@ public class HttpUtil {
         //RequestConfig config = RequestConfig.custom().setProxy(proxy).build(); 
 		String result = "";
 		try {
-			// ´´½¨getÁ¬½Ó
+			// åˆ›å»ºgetè¿æ¥
 			HttpGet httpget = new HttpGet(url);
-			// ÉèÖÃ³¬Ê±Ê±¼ä
+			// è®¾ç½®è¶…æ—¶æ—¶é—´
 			RequestConfig requestConfig = RequestConfig.custom()
 					.setSocketTimeout(200000).setConnectTimeout(1000 * 10).setProxy(proxy)
-					.build();// ÉèÖÃÇëÇóºÍ´«Êä³¬Ê±Ê±¼ä
+					.build();// è®¾ç½®è¯·æ±‚å’Œä¼ è¾“è¶…æ—¶æ—¶é—´
 			httpget.setConfig(requestConfig);
 			httpget.setHeader("Accept-Charset",
 					"Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9.1.2");
-			// ·¢ËÍÇëÇó
+			// å‘é€è¯·æ±‚
 			CloseableHttpResponse response = httpclient.execute(httpget);
 			HttpEntity entity = response.getEntity();
 			BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -397,7 +431,7 @@ public class HttpUtil {
 
 			br.close();
 
-			// ÖÕÖ¹ÇëÇó
+			// ç»ˆæ­¢è¯·æ±‚
 			httpget.abort();
 		} catch (ClientProtocolException e) {
 			System.out.println("ClientProtocolException ==" + e);
@@ -406,7 +440,7 @@ public class HttpUtil {
 			System.out.println("IOException ==" + e);
 			e.printStackTrace();
 		} finally {
-			// ÖÕÖ¹ÇëÇó
+			// ç»ˆæ­¢è¯·æ±‚
 			httpclient.close();
 		}
 		return result;
@@ -417,29 +451,29 @@ public class HttpUtil {
 		String result = "";
 		try {
 //			HttpHost targetHost = new HttpHost("www.baidu.com");
-			// ´´½¨getÁ¬½Ó
+			// åˆ›å»ºgetè¿æ¥
 			HttpGet httpget = new HttpGet(url);
-			// ÉèÖÃ³¬Ê±Ê±¼ä
+			// è®¾ç½®è¶…æ—¶æ—¶é—´
 			RequestConfig requestConfig = RequestConfig.custom()
 					.setSocketTimeout(200000).setConnectTimeout(1000 * 10)
-					.build();// ÉèÖÃÇëÇóºÍ´«Êä³¬Ê±Ê±¼ä
+					.build();// è®¾ç½®è¯·æ±‚å’Œä¼ è¾“è¶…æ—¶æ—¶é—´
 			httpget.setConfig(requestConfig);
 			httpget.setHeader("Accept-Charset",
 					"Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9.1.2");
 			httpget.setHeader("token", token);    
-			// ·¢ËÍÇëÇó
+			// å‘é€è¯·æ±‚
 			CloseableHttpResponse response = httpclient.execute(httpget);
-/*			System.out.println("URI£º" + httpget.getURI());
-			// »ñÈ¡×´Ì¬Âë
-			System.out.println("×´Ì¬Âë£º"
+/*			System.out.println("URIï¼š" + httpget.getURI());
+			// è·å–çŠ¶æ€ç 
+			System.out.println("çŠ¶æ€ç ï¼š"
 					+ response.getStatusLine().getStatusCode());
-			System.out.println("Í·²¿ĞÅÏ¢£º"
+			System.out.println("å¤´éƒ¨ä¿¡æ¯ï¼š"
 					+ httpget.getFirstHeader("Accept-Charset").getValue());
 */
 			// BufferedReader reader= new BufferedReader(new
 			// InputStreamReader(response.get));
 
-			// »ñÈ¡ËùÓĞµÄÇëÇóÍ·ĞÅÏ¢
+			// è·å–æ‰€æœ‰çš„è¯·æ±‚å¤´ä¿¡æ¯
 			/*Header headers[] = response.getAllHeaders();
 			int ii = 0;
 			while (ii < headers.length) {
@@ -447,7 +481,7 @@ public class HttpUtil {
 						+ headers[ii].getValue());
 				++ii;
 			}*/
-			// ×¥È¡ÍøÒ³ÄÚÈİ
+			// æŠ“å–ç½‘é¡µå†…å®¹
 			HttpEntity entity = response.getEntity();
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					entity.getContent(), "UTF-8"));
@@ -458,7 +492,7 @@ public class HttpUtil {
 
 			br.close();
 
-			// ÖÕÖ¹ÇëÇó
+			// ç»ˆæ­¢è¯·æ±‚
 			httpget.abort();
 		} catch (ClientProtocolException e) {
 			System.out.println("ClientProtocolException ==" + e);
@@ -467,7 +501,7 @@ public class HttpUtil {
 			System.out.println("IOException ==" + e);
 			e.printStackTrace();
 		} finally {
-			// ÖÕÖ¹ÇëÇó
+			// ç»ˆæ­¢è¯·æ±‚
 			httpclient.close();
 		}
 		return result;
@@ -493,23 +527,23 @@ public class HttpUtil {
 	            }
 
 	            URL realUrl = new URL(urlNameString);
-	            //´ò¿ªÁ¬½Ó
+	            //æ‰“å¼€è¿æ¥
 	            URLConnection connection = realUrl.openConnection();
-	            //ÉèÖÃÍ¨ÓÃµÄÇëÇóÊôĞÔ
+	            //è®¾ç½®é€šç”¨çš„è¯·æ±‚å±æ€§
 	            connection.setRequestProperty("Host", "toutiao.com");
 	            connection.setRequestProperty("accept","*/*");
 	            connection.setRequestProperty("connection","Keep-Alive");
 	            connection.setRequestProperty("user-agent","Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
 
-	            //½¨Á¢Êµ¼ÊµÄÁ¬½Ó
+	            //å»ºç«‹å®é™…çš„è¿æ¥
 	            connection.connect();
-	            //»ñÈ¡ËùÓĞÏìÓ¦Í·×Ö¶Î
+	            //è·å–æ‰€æœ‰å“åº”å¤´å­—æ®µ
 	            Map map = connection.getHeaderFields();
-	            //±éÀúÏìÓ¦Í·×Ö¶Î
+	            //éå†å“åº”å¤´å­—æ®µ
 //	            for (String key : map.keySet()){
 //	                System.out.println(key + "--->" + map.get(key));
 //	            }
-	            //¶¨Òå bufferedReaderÊäÈëÁ÷À´¶ÁÈ¡URLµÄÏìÓ¦
+	            //å®šä¹‰ bufferedReaderè¾“å…¥æµæ¥è¯»å–URLçš„å“åº”
 	            in = new BufferedReader(new InputStreamReader(connection.getInputStream(), charsetName));
 	            String line;
 	            while ((line = in.readLine())!=null) {
@@ -517,7 +551,7 @@ public class HttpUtil {
 	            }
 
 	        }catch (Exception e) {
-	            System.out.println("·¢ËÍGetÇëÇó³öÏÖÒì³£!" + e);
+	            System.out.println("å‘é€Getè¯·æ±‚å‡ºç°å¼‚å¸¸!" + e);
 	            e.printStackTrace();
 	        }
 	        finally {
@@ -581,7 +615,7 @@ public class HttpUtil {
 		}
 
 	/**
-	 * post bodyÊı¾İµ½Ö¸¶¨µØÖ·£¬²¢»ñÈ¡·µ»Ø½á¹û.
+	 * post bodyæ•°æ®åˆ°æŒ‡å®šåœ°å€ï¼Œå¹¶è·å–è¿”å›ç»“æœ.
 	 * @throws IOException
 	 * @throws NoSuchAlgorithmException
 	 * @throws KeyManagementException
@@ -611,9 +645,9 @@ public class HttpUtil {
 			httpClient.getConnectionManager().getSchemeRegistry().register(httpScheme);
 			httpClient.getConnectionManager().getSchemeRegistry().register(httpsScheme);
 		}
-		// ÖØÊÔ
+		// é‡è¯•
 		httpClient.setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(3, false));
-		//³¬Ê±
+		//è¶…æ—¶
 		httpClient.getParams().setIntParameter(HttpConnectionParams.CONNECTION_TIMEOUT, 10000);
 		httpClient.getParams().setIntParameter(HttpConnectionParams.SO_TIMEOUT, readTimeout);
 		HttpPost httppost = new HttpPost(url);
@@ -637,5 +671,59 @@ public class HttpUtil {
 		}
 	}
 
+	/**
+	 * å‘é€jsonç±»å‹çš„POSTè¯·æ±‚
+	 * @param url è¯·æ±‚åœ°å€
+	 * @param json jsonå­—ç¬¦ä¸²
+	 * @return
+	 */
+	public static String doPostJson(String url,String json){
+		if(url == null || url.equals("")){
+			return null;
+		}
+		if(json == null || json.equals("")){
+			return null;
+		}
+		String result = null;
+		try {
+			HttpPost post = new HttpPost(url);
+			//é…ç½®è¯·æ±‚çš„è¶…æ—¶è®¾ç½®
+			RequestConfig params = RequestConfig.custom().setConnectTimeout(3000).setConnectionRequestTimeout(1000).
+					setSocketTimeout(15000).setExpectContinueEnabled(true).build();
+			CloseableHttpClient httpClient = HttpClients.createDefault();
+			StringEntity s = new StringEntity(json);
+			s.setContentEncoding("UTF-8");
+			s.setContentType("application/json");//å‘é€jsonæ•°æ®éœ€è¦è®¾ç½®contentType
+			post.setConfig(params);
+			post.setEntity(s);
+			HttpResponse res = httpClient.execute(post);
+			result = EntityUtils.toString(res.getEntity());// è¿”å›jsonæ ¼å¼ï¼š
+		}catch (Exception e){
+			e.printStackTrace();
+			return null;
+		}
+		return result;
+	}
+
+	public static  int isConnectFg(String urlStr) {
+		int retu = 1;
+		if (urlStr == null || urlStr.length() <= 0) {
+			return 0;
+		}
+		try {
+			if (urlStr.startsWith("https")) {
+				if (HttpsUrlConnectionClient.getCode(urlStr) != 200) {
+					retu = 0;
+				}
+			} else {
+				if (exists(urlStr) != 200) {
+					retu = 0;
+				}
+			}
+		}catch (Exception ex) {
+
+		}
+		return retu;
+	}
 
 }

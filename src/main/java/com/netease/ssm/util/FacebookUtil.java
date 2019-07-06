@@ -88,6 +88,18 @@ public class FacebookUtil {
         return "";
     }
 
+    private static String catch123(String content){
+        Pattern patternTitle = Pattern.compile("<iframe.*data-src=\"([^\"]*?)\"");
+        Matcher matcherTitle = patternTitle.matcher(content);
+        boolean matchedTitle = matcherTitle.find();
+        if (matchedTitle) {
+            String x = matcherTitle.group(1);
+            System.out.println(x);
+            return x;
+        }
+        return "";
+    }
+
 
     //正常逻辑的抓取
     private static List<Facebook> catchByPage(String catchUrl, List<Facebook> facebooks){

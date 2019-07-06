@@ -1,10 +1,12 @@
 package com.netease.ssm.controller;
 
 import com.netease.ssm.pojo.User;
+import com.netease.ssm.pojo.Video;
 import com.netease.ssm.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.net.HttpURLConnection;
@@ -19,6 +21,7 @@ import java.util.concurrent.Executors;
  * Created by bjzhangxicheng on 2016/12/5.
  */
 @Controller
+@ResponseBody
 @RequestMapping("/user")
 public class UserController {
 
@@ -43,6 +46,17 @@ public class UserController {
         modelAndView.setViewName("findUser");
 
         return modelAndView;
+    }
+
+    @RequestMapping("/findVideo")
+    public String findVideo()throws Exception{
+        Video video = userService.getOneVideo("VD30H7SI3");
+        return video.getTitle();
+    }
+
+    @RequestMapping("/test")
+    public String test()throws Exception{
+        return "11111222223333";
     }
 
 

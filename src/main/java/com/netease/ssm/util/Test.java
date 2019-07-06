@@ -1,80 +1,80 @@
 package com.netease.ssm.util;
 
-import com.netease.ssm.pojo.Prize;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.net.URL;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.SimpleFormatter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Created by bjzhangxicheng on 2017/5/26.
+ * Created by SAMSUNG on 2017/11/12.
  */
 public class Test {
 
-    public static void main(String[] args) {
-        List<Prize> prizes = new ArrayList<Prize>();
-        Prize prize1 = new Prize();
-        prize1.setPrizeId(1);
-        prize1.setProbability(new BigDecimal(0.05));
-        prize1.setQuantity(1);
-        prizes.add(prize1);
+    static Pattern p = Pattern.compile("vid=([0-9a-zA-Z]{11})");
+    public static void main(String[] args){
+        String s1 = "<iframe class=\"video_iframe\" frameborder=\"0\" scrolling=\"no\" allowfullscreen data-vidtype=\"2\" data-ratio=\"1.7666666666666666\" data-w=\"848\" data-src=\"c=\"https://v.qq.com/iframe/preview.html?vid=o0730l9un72\" st\" style=\"width:500px;height:375px;\" height=\"280\" width=\"500\"></iframe>";
+        String s2 = "<iframe class=\"video_iframe\" data-vidtype=\"2\" data-cover=\"http%3A%2F%2F%2Fshp.qpic.cn%2Fq%2Fqqvideo_ori%2F0%2Fq0780cbv2gv_496_280%2F0\" allowfullscreen frameborder=\"0\" data-ratio=\"1.7777777777777777\" data-w=\"864\" src=\"c=\"https://v.qq.com/iframe/preview.html?width=500&amp;height=375&amp;auto=0&amp;vid=q0780cbv2gv\"></\"></iframe>";
+        /*Matcher m1 = p.matcher(s1);
+        if(m1.find()) {
+            System.out.println(m1.group(1));
+        }*/
+        /*Matcher m2 = p.matcher(s2);
+        if(m2.find()) {
+            System.out.println(m2.group(1));
+        }*/
 
-        Prize prize2 = new Prize();
-        prize2.setPrizeId(2);
-        prize2.setProbability(new BigDecimal(0.10));
-        prize2.setQuantity(10);
-        prizes.add(prize2);
+//        System.out.println(JSON.toJSONString(ImmutableBiMap.of("firstFrameImg", "","hideTitle","")));
 
-        Prize prize3 = new Prize();
-        prize3.setPrizeId(3);
-        prize3.setProbability(new BigDecimal(0.15));
-        prize3.setQuantity(20);
-        prizes.add(prize3);
+        String x = "[{\"vid\":\"VITKE5LHA\",\"comments\":[\"第一次吃到这种奶冰粽子\",\"这不就是冰皮月饼么\"],\"title\":\"在天津街头第一次吃到奶冰粽子：8元一个，感觉有点被坑了\"}]";
+        JSONArray nosGetArray = JSONArray.parseArray(x);
+        JSONObject nosObject = nosGetArray.getJSONObject(0);
+        JSONArray commentsArray = nosObject.getJSONArray("comments");
+        int num = 0;
+        if(commentsArray != null && commentsArray.size() != 0){
+            num = commentsArray.size();
+        }
+        String f = commentsArray.getString(0);
+    }
 
-        Prize prize4 = new Prize();
-        prize4.setPrizeId(4);
-        prize4.setProbability(new BigDecimal(0.20));
-        prize4.setQuantity(50);
-        prizes.add(prize4);
-
-        Prize prize5 = new Prize();
-        prize5.setPrizeId(5);
-        prize5.setProbability(new BigDecimal(0.50));
-        prize5.setQuantity(200);
-        prizes.add(prize5);
-
-        int prize1GetTimes = 0;
-        int prize2GetTimes = 0;
-        int prize3GetTimes = 0;
-        int prize4GetTimes = 0;
-        int prize5GetTimes = 0;
-        Arithmetic arithmetic = new Arithmetic();
-        int times = 1000;
-        for (int i = 0; i < times; i++) {
-            int prizeId = arithmetic.pay(prizes);
-            switch (prizeId) {
-                case 1:
-                    prize1GetTimes++;
-                    break;
-                case 2:
-                    prize2GetTimes++;
-                    break;
-                case 3:
-                    prize3GetTimes++;
-                    break;
-                case 4:
-                    prize4GetTimes++;
-                    break;
-                case 5:
-                    prize5GetTimes++;
-                    break;
+ /*   public String getTopicUrl(String topicid, String stree) {
+        if (StringUtil.isFine(stree)) {
+            stree = stree.toUpperCase();
+            if (stree.length() % 9 == 0) {
+                int plus = stree.length() / 9;
+                for (int j = 0; j < plus; j++) {
+                    String sid = stree.substring(j * 9, j * 9 + 9);
+                    if (StringUtil.isFine((String) this.topicUrlMap.get(sid))) {
+                        return (String) this.topicUrlMap.get(sid);
+                    }
+                }
             }
         }
-        System.out.println("抽奖次数" + times);
-        System.out.println("prize1中奖次数" + prize1GetTimes);
-        System.out.println("prize2中奖次数" + prize2GetTimes);
-        System.out.println("prize3中奖次数" + prize3GetTimes);
-        System.out.println("prize4中奖次数" + prize4GetTimes);
-        System.out.println("prize5中奖次数" + prize5GetTimes);
+        String topicUrl = (String) this.topicUrlMap.get(topicid);
+        if (topicUrl == null)
+            return "";
+        return topicUrl;
+    }*/
+
+
+    private static String tencentVid (String blockSrc){
+
+        Pattern p = Pattern.compile("vid=([0-9a-zA-Z]{11})");
+        Matcher m1 = p.matcher(blockSrc);
+        if(m1.find()) {
+            return m1.group(1);
+        }
+        return null;
     }
+
 }
