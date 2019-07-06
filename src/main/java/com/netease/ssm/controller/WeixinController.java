@@ -58,6 +58,7 @@ public class WeixinController {
         user.setAge(1.67);
         System.out.println(123);
 
+        System.out.println("zxc");
         Map<String, Object> params = JackSonUtil.objToStrMap(user);
 
         System.out.println(JSON.toJSONString(params));
