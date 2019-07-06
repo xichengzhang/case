@@ -59,6 +59,7 @@ public class WeixinController {
         System.out.println(123);
 
         System.out.println("zxc");
+        System.out.println("youyi");
         Map<String, Object> params = JackSonUtil.objToStrMap(user);
 
         System.out.println(JSON.toJSONString(params));
