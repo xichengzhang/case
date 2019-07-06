@@ -56,6 +56,7 @@ public class WeixinController {
         user.setAddress("haha");
         user.setBirthday(new Date());
         user.setAge(1.67);
+        System.out.println(123);
 
         Map<String, Object> params = JackSonUtil.objToStrMap(user);
 
